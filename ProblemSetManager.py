@@ -9,7 +9,8 @@ class ProblemSetManager(object):
 		"""Return a ProblemSetManager.
 		
 		Keyword Arguments
-		filename -- The name of the file containing ProblemSet definitions.
+		filename -- The name of the file containing ProblemSet 
+                    definitions.
 		"""
 		self.filename = filename
 		self.problem_sets = [a for a in self.load_problems()]
@@ -30,11 +31,15 @@ class ProblemSetManager(object):
 		fin.close()
 
 	def sort(self):
-		"""Sorts the ProblemSets using the compare method ProblemSet.__cmp__"""
+		"""Sorts the ProblemSets using the compare method 
+                ProblemSet.__cmp__
+                """
 		self.problem_sets.sort()
 
 	def sort_by_quotient(self):
-		"""Sorts problems according to ProblemSet.quotient, which is right - wrong."""
+		"""Sorts problems according to ProblemSet.quotient, which is 
+                right - wrong.
+                """
 		self.problem_sets = [ (-1*a.quotient(), a) for a in self.problem_sets]
 		self.problem_sets.sort()
 		self.problem_sets = [a[1] for a in self.problem_sets]
@@ -67,7 +72,8 @@ class ProblemSetManager(object):
 		self.problem_sets[ self.index(chapter, section) ].mark_right()
 
 	def weighted_num(self, mu, sigma):
-		"""Return a random, weighted number normally distributed around mu with a standard deviation of sigma.
+		"""Return a random, weighted number normally distributed 
+                around mu with a standard deviation of sigma.
 
 		Keyword arguments:
 		mu -- The average value of the variable.
@@ -76,7 +82,9 @@ class ProblemSetManager(object):
 		return int( math.log( self.rand.lognormvariate(mu, sigma) ) )
 
 	def trimmed_weighted_num(self, mu, sigma, minimum, maximum):
-		"""Return a random, weighted number normally distributed around mu with a standard deviation of sigma, trimmed to be between minimum and maximum.
+		"""Return a random, weighted number normally distributed 
+                around mu with a standard deviation of sigma, trimmed to be 
+                between minimum and maximum.
 
 		Keyword arguments:
 		mu -- The average value of the variable.
@@ -89,13 +97,16 @@ class ProblemSetManager(object):
 			return self.trimmed_weighted_num(mu, sigma, minimum, maximum)
 		return x
 
-	def random_problem_weighted(self):
-		"""Return a random problem, weighted by its position in the ProblemSet list."""
+	def random_problem_set_weighted(self):
+		"""Return a random problem set, weighted by its position in 
+                the ProblemSet list.
+                """
 		minimum = 0
 		maximum = len(self.problem_sets) - 1
-		mu = int( .8 * maximum ) 
-		sigma = int( .3 * maximum )
-		return self.problem_sets[ self.trimmed_weighted_num( mu, sigma, minimum, maximum) ]
+		mu = .8 * maximum 
+		sigma = .3 * maximum
+                pnum = self.trimmed_weighted_num( mu, sigma, minimum, maximum)
+		return self.problem_sets[ int(pnum) ]
 
 	def save_problems(self, ofilename="save.txt"):
 		"""Save a string representation of the ProblemSets.
@@ -110,7 +121,20 @@ class ProblemSetManager(object):
 		fout.close()
 
 	def get_headers(self):
+                """Get the header string."""
 		return "ch.\tsect.\tprob.\tpage\tright\twrong"
+
+        def get_stats(self):
+                """Return a dictionary containing descriptive
+                statistics.
+                """
+                d = dict()
+                d['right'] = reduce(lambda x, y: x + y.right, 
+                                    self.problem_sets, 0)
+                d['wrong'] = reduce(lambda x, y: x + y.wrong, 
+                                    self.problem_sets, 0)
+                d['total'] = d['right'] + d['wrong']
+                return d
 
 if __name__=="__main__":
 	#psm = ProblemSetManager("Algebra_Problems.txt")
