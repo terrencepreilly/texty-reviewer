@@ -64,16 +64,16 @@ def _main():
     timestamp = str(datetime.date.today())
 
 
+    # ---------------MARK CORRECT------------------------------------ #
     def splitproblem(s):
         return s.split(':')[0].split('.')
 
-    # ---------------MARK CORRECT------------------------------------ #
     if args.c:
         for p in args.c:
             try:
                 prob = splitproblem(p)
                 psm.mark_right(int(prob[0]), int(prob[1]))
-            except:
+            except Exception:
                 print("Problem not in problem set!")
 
     # ---------------MARK INCORRECT---------------------------------- #
@@ -128,7 +128,7 @@ def _main():
     if args.statistics and psm is not None:
         stats = psm.get_stats()
         p = float(stats['right']) / float(stats['total']) * 100
-        print('\n#--------DESCRIPTIVE STATISTICS FOR ' + psm.filename +
+        print('#--------DESCRIPTIVE STATISTICS FOR ' + psm.filename +
               '-----------#')
         print('\tTotal Reviewed:\t\t%d' % stats['total'])
         print('\tPercent Right:\t\t' + str(p)[:4] + '%')

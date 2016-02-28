@@ -61,15 +61,24 @@ class ProblemSet(object):
         """Mark the given problem right."""
         self.right += 1
 
-    def __cmp__(self, ps):
-        """Compares two problem sets by chapter.
+    def __lt__(self, ps):
+        """Compare two problem sets by chapter, then section.
 
         Keyword arguments:
         ps -- Another ProblemSet.
         """
-        if cmp(self.chapter, ps.chapter) == 0:
-            return cmp(self.section, ps.section)
-        return cmp(self.chapter, ps.chapter)
+        if self.chapter == ps.chapter:
+            return self.section < ps.section
+        return self.chapter < ps.chapter
+
+    def __eq__(self, ps):
+        """Compare two problem sets, return True if they are
+           the same. (I.e. Have the same chapter and section.
+
+        Keyword arguments:
+        ps -- Another ProblemSet.
+        """
+        return (self.chapter == ps.chapter) and (self.section == ps.section)
 
     def quotient(self):
         """Returns the number right minus the number wrong for
