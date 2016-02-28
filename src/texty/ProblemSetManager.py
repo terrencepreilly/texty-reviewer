@@ -1,6 +1,7 @@
-from ProblemSet import ProblemSet
 import math
 import random
+
+from .ProblemSet import ProblemSet
 
 
 class ProblemSetManager(object):
