@@ -84,8 +84,10 @@ class ProblemSet(object):
                                     self.right, self.wrong]]
         return '\t'.join(retlist)
 
-    def str_rand_problem(self):
+    def str_rand_problem(self, custom_filter):
         """Return a random problem within this problem set."""
         ret = self.__str__().split('\t')
-        ret[2] = str(random.randint(1, int(ret[2])))
+        prob_range = range(int(ret[2]))
+        i = random.choice(list(filter(custom_filter, prob_range)))
+        ret[2] = str(i)
         return '\t'.join(ret)

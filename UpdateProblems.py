@@ -2,7 +2,8 @@ import argparse
 from ProblemSetManager import ProblemSetManager
 import datetime
 
-parser = argparse.ArgumentParser(description="Handle Reviewing Operations")
+parser = argparse.ArgumentParser(description='A utility for reviewing\
+    textbook problems, and tracking progress in textbooks.')
 
 parser.add_argument('-f', nargs='?', help="""The filename for the book being
                     reviewed.""")
@@ -19,6 +20,10 @@ parser.add_argument('-t', action='store_true', help="""Adds a timestamp to
                     extension, e.g.: .txt)""")
 parser.add_argument('-r', nargs='?', help="""Generate R random problems,
                     weighted.""")
+parser.add_argument('-o', action='store_true', help="""When generating random
+                    problems, only generate odd problems.""")
+parser.add_argument('-e', action='store_true', help="""When generating random
+                    problems, only generate even problems.""")
 parser.add_argument('-p', action='store_true', help="""Print the list of
                     problem sets.""")
 parser.add_argument('--statistics', action='store_true', help="""Display
@@ -77,11 +82,26 @@ if psm is not None and (args.i or args.c):  # only save if marking
             psm.save_problems(filename)
 
 # ---------------PRINT RANDOM PROBLEMS--------------------------- #
+
+class Problem_Filters(object):
+
+    def odds(x): return (x & 1) == 1
+
+    def evens(x): return (x & 1) == 0
+
+    def all(x): return True
+
+
 if args.r and psm is not None:
+    custom_filter = Problem_Filters.all
+    if (args.o and not args.e):
+        custom_filter = Problem_Filters.odds
+    elif (args.e and not args.o):
+        custom_filter = Problem_Filters.evens
     print(psm.get_headers())
     for i in range(int(args.r)):
         rand_prob_set = psm.random_problem_set_weighted()
-        print(rand_prob_set.str_rand_problem())
+        print(rand_prob_set.str_rand_problem(custom_filter))
 
 
 # ---------------PRINT ALL PROBLEM SETS-------------------------- #

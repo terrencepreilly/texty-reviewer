@@ -19,17 +19,15 @@ class ProblemSetManager(object):
 
     def load_problems(self):
         """Load the ProblemSets defined in the filename."""
-        fin = open(self.filename, 'r')
-        lines = [a.strip() for a in fin.readlines()]
-        key = lines[0]
-        lines = lines[1:]
+        with open(self.filename, 'r') as fin:
+            lines = [a.strip() for a in fin.readlines()]
+            key = lines[0]
+            lines = lines[1:]
 
-        for line in lines:
-            ps = ProblemSet()
-            ps.init_line(line, key)
-            yield ps
-
-        fin.close()
+            for line in lines:
+                ps = ProblemSet()
+                ps.init_line(line, key)
+                yield ps
 
     def sort(self):
         """Sorts the ProblemSets using the compare method
