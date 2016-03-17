@@ -1,7 +1,10 @@
 import argparse
 import datetime
 
-from .ProblemSetManager import ProblemSetManager
+try:
+    from .ProblemSetManager import ProblemSetManager
+except SystemError:
+    from ProblemSetManager import ProblemSetManager
 
 
 def set_default_filename(new_default):

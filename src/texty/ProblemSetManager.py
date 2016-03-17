@@ -1,13 +1,18 @@
 import math
 import random
+import pickle
+from io import BytesIO
 
-from .ProblemSet import ProblemSet
+try:
+    from .ProblemSet import ProblemSet
+except SystemError:
+    from ProblemSet import ProblemSet
 
 
 class ProblemSetManager(object):
     """Loads ProblemSets and performs operations on them."""
 
-    def __init__(self, filename="Stats_Problems.txt"):
+    def __init__(self, filename="default", filetype='txy'):
         """Return a ProblemSetManager.
 
         Keyword Arguments
@@ -15,12 +20,17 @@ class ProblemSetManager(object):
              definitions.
         """
         self.filename = filename
-        self.problem_sets = [a for a in self.load_problems()]
+        if filetype == 'txt':
+            self.problem_sets = [a for a in self.load_problems()]
+        elif filetype == 'txy':
+            self.problem_sets = self.load_from_pickle()
+        else:
+            self.problem_sets = list()
         self.rand = random.Random()
 
     def load_problems(self):
         """Load the ProblemSets defined in the filename."""
-        with open(self.filename, 'r') as fin:
+        with open(self.filename + '.txt', 'r') as fin:
             lines = [a.strip() for a in fin.readlines()]
             key = lines[0]
             lines = lines[1:]
@@ -30,11 +40,39 @@ class ProblemSetManager(object):
                 ps.init_line(line, key)
                 yield ps
 
+    def save_problems(self, ofilename="save.txt"):
+        """Save a string representation of the ProblemSets.
+
+        Keyword arguments:
+        ofilename -- The name of the output file.
+        """
+        if not ofilename:
+            ofilename = self.filename + '.txt'
+        with open(ofilename, 'w') as fout:
+            fout.write("chapter\tsection\tproblems\tpage\tright\twrong\n")
+            for ps in self.problem_sets:
+                fout.write(str(ps) + '\n')
+
+    def load_from_pickle(self):
+        """
+        Loads problem_sets from a pickle dump.
+        """
+        ret = None
+        with open(self.filename + '.txy', 'rb') as fin:
+            ret = pickle.load(fin)
+        return ret
+
+    def save_to_pickle(self):
+        """
+        Saves problem_sets to a pickle dump.
+        """
+        with open(self.filename + '.txy', 'wb') as fout:
+            pickle.dump(self.problem_sets, fout)
+
     def sort(self):
         """Sorts the ProblemSets using the compare method
         ProblemSet.__cmp__
         """
-
         self.problem_sets.sort()
 
     def sort_by_quotient(self):
@@ -108,18 +146,6 @@ class ProblemSetManager(object):
         sigma = .3 * maximum
         pnum = self.trimmed_weighted_num(mu, sigma, minimum, maximum)
         return self.problem_sets[int(pnum)]
-
-    def save_problems(self, ofilename="save.txt"):
-        """Save a string representation of the ProblemSets.
-
-        Keyword arguments:
-        ofilename -- The name of the output file.
-        """
-        fout = open(ofilename, 'w')
-        fout.write("chapter\tsection\tproblems\tpage\tright\twrong\n")
-        for ps in self.problem_sets:
-            fout.write(str(ps) + '\n')
-        fout.close()
 
     def get_headers(self):
         """Get the header string."""
