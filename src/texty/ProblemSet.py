@@ -1,3 +1,4 @@
+import datetime
 import random
 
 
@@ -27,6 +28,7 @@ class ProblemSet(object):
         self.page = page
         self.right = right
         self.wrong = wrong
+        self.history = list()
 
     def init_line(self, line,
                   key="chapter\tsection\tproblems\tpage\tright\twrong"):
@@ -52,14 +54,25 @@ class ProblemSet(object):
         self.page = d["page"]
         self.right = d["right"]
         self.wrong = d["wrong"]
+        self.history = list()
 
-    def mark_wrong(self):
+    def mark_wrong(self, problem):
         """Mark the given problem wrong."""
         self.wrong += 1
+        self.history.append((
+            str(datetime.datetime.now()),
+            -1,
+            problem
+            ))
 
-    def mark_right(self):
+    def mark_right(self, problem):
         """Mark the given problem right."""
         self.right += 1
+        self.history.append((
+            str(datetime.datetime.now()),
+            1,
+            problem
+            ))
 
     def __lt__(self, ps):
         """Compare two problem sets by chapter, then section.

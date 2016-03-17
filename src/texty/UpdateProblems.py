@@ -90,7 +90,7 @@ def _main():
         for p in args.c:
             try:
                 prob = splitproblem(p)
-                psm.mark_right(int(prob[0]), int(prob[1]))
+                psm.mark_right(int(prob[0]), int(prob[1]), int(prob[2]))
             except Exception:
                 print("Problem not in problem set!")
 
@@ -99,7 +99,7 @@ def _main():
         for p in args.i:
             try:
                 prob = splitproblem(p)
-                psm.mark_wrong(int(prob[0]), int(prob[1]))
+                psm.mark_wrong(int(prob[0]), int(prob[1], int(prob[2])))
             except:
                 print("Problem not in problem set!")
 

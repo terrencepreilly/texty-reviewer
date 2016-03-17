@@ -95,23 +95,23 @@ class ProblemSetManager(object):
         """
         return self.problem_sets.index(ProblemSet(chapter, section))
 
-    def mark_wrong(self, chapter, section):
+    def mark_wrong(self, chapter, section, problem):
         """Increment the wrong counter on the designated ProblemSet.
 
         Keyword arguments:
         chapter -- The chapter of the ProblemSet wanted.
         section -- The section of the problemSet wanted.
         """
-        self.problem_sets[self.index(chapter, section)].mark_wrong()
+        self.problem_sets[self.index(chapter, section)].mark_wrong(problem)
 
-    def mark_right(self, chapter, section):
+    def mark_right(self, chapter, section, problem):
         """Increment the wrong counter on the designated ProblemSet.
 
         Keyword arguments:
         chapter -- The chapter of the ProblemSet wanted.
         section -- The section of the problemSet wanted.
         """
-        self.problem_sets[self.index(chapter, section)].mark_right()
+        self.problem_sets[self.index(chapter, section)].mark_right(problem)
 
     def weighted_num(self, mu, sigma):
         """Return a random, weighted number normally distributed
