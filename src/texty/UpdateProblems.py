@@ -23,33 +23,43 @@ def _main():
     parser = argparse.ArgumentParser(description='A utility for reviewing\
         textbook problems, and tracking progress in textbooks.')
 
-    parser.add_argument('-f', nargs='?',
-        help="""The filename for the book being reviewed.""")
     parser.add_argument('-c', nargs='*',
         help="""The problem gotten correct in the format
                 chapter.section:problem.  For example, 6.5:15 would be
-                problem 15 from section 5 of chapter 6.""")
-    parser.add_argument('-i', nargs='*',
-        help="""The problem gotten incorrect in the format
-                chapter.section:problem.  For example, 6.5:15 would be
-                problem 15 from section 5 of chapter 6.""")
-    parser.add_argument('--set-default', nargs='?',
-        help="""Set the default file to work on.""")
-    parser.add_argument('-t', action='store_true',
-        help="""Adds a timestamp to the filename. (Note: the file name
-                must include some extension, e.g.: .txt)""")
-    parser.add_argument('-r', nargs='?',
-        help="""Generate R random problems, weighted.""")
-    parser.add_argument('-o', action='store_true',
-        help="""When generating random problems, only generate odd
-                problems.""")
+                problem 15 from section 5 of chapter 6. When a problem is
+                marked correct, automatically saves.""")
     parser.add_argument('-e', action='store_true',
         help="""When generating random problems, only generate even
                 problems.""")
+    parser.add_argument('-f', nargs='?',
+        help="""The filename for the book being reviewed.""")
+    parser.add_argument('-H', action='store_true',
+        help="""Load from human readable format. (Will not load file
+                history.)""")
+    parser.add_argument('--hsave', action='store_true',
+        help="""Save in a human readable format. (Will not save file
+                history.)""")
+    parser.add_argument('-i', nargs='*',
+        help="""The problem gotten incorrect in the format
+                chapter.section:problem.  For example, 6.5:15 would be
+                problem 15 from section 5 of chapter 6.  When a problem
+                is marked incorrect, automatically saves.""")
+    parser.add_argument('-o', action='store_true',
+        help="""When generating random problems, only generate odd
+                problems.""")
     parser.add_argument('-p', action='store_true',
         help="""Print the list of problem sets.""")
+    parser.add_argument('-r', nargs='?',
+        help="""Generate R random problems, weighted.""")
+    parser.add_argument('-s', action='store_true',
+        help="""Force save without marking any correct or incorrect.""")
+    parser.add_argument('--set-default', nargs='?',
+        help="""Set the default file to work on.""")
     parser.add_argument('--statistics', action='store_true',
         help="""Display review statistics on the given file.""")
+    parser.add_argument('-t', action='store_true',
+        help="""Adds a timestamp to the filename. (Note: the file name
+                must include some extension, e.g.: .txt)""")
     args = parser.parse_args()
 
     if args.set_default:
@@ -58,12 +68,17 @@ def _main():
     # ---------------GET THE FILENAME-------------------------------- #
     filename = None
     if args.f:
-        filename = args.f
+        filename = args.f.split('.')[0]
     else:
         filename = get_default_filename()
 
     # ---------------OPEN PROBLEMSETMANAGER-------------------------- #
-    psm = ProblemSetManager(filename) if filename is not None else None
+    if filename is not None and args.H:
+        psm = ProblemSetManager(filename, 'txt')
+    elif filename is not None:
+        psm = ProblemSetManager(filename)
+    else:
+        psm = None
     timestamp = str(datetime.date.today())
 
 
@@ -89,17 +104,17 @@ def _main():
                 print("Problem not in problem set!")
 
     # ---------------SORT, SAVE, AND CLOSE--------------------------- #
-    if psm is not None and (args.i or args.c):  # only save if marking
-        psm.sort_by_quotient()
-        if args.c or args.i:
-            if args.t:
-                psm.save_problems(filename.split('.')[0] + '_' +
-                                  timestamp + '.' + filename.split('.')[1])
-            else:
-                psm.save_problems(filename)
+    if psm is not None:
+        if args.t:
+            psm.save_problems(filename + '_' + timestamp + '.txt')
+        elif args.hsave:
+            psm.save_problems()
+        elif args.H and (args.i or args.c or args.s):
+            psm.save_to_pickle()
+        elif args.i or args.c or args.s:
+            psm.save_to_pickle()
 
     # ---------------PRINT RANDOM PROBLEMS--------------------------- #
-
     class Problem_Filters(object):
 
         def odds(x): return (x & 1) == 1
@@ -130,7 +145,10 @@ def _main():
     # ---------------DISPLAY DESCRIPTIVE STATISTICS------------------ #
     if args.statistics and psm is not None:
         stats = psm.get_stats()
-        p = float(stats['right']) / float(stats['total']) * 100
+        if stats['total'] != 0:
+            p = float(stats['right']) / float(stats['total']) * 100
+        else:
+            p = '0 '
         print('#--------DESCRIPTIVE STATISTICS FOR ' + psm.filename +
               '-----------#')
         print('\tTotal Reviewed:\t\t%d' % stats['total'])

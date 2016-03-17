@@ -22,7 +22,7 @@ def normalize(filename):
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Normalize File Spacing')
 
-    parser.add_argument('-f', nargs='?', help="""The filename for the file 
+    parser.add_argument('-f', nargs='?', help="""The filename for the file
         to be normalized""")
 
     args = parser.parse_args()

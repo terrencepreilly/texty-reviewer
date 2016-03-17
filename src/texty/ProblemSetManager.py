@@ -40,18 +40,21 @@ class ProblemSetManager(object):
                 ps.init_line(line, key)
                 yield ps
 
-    def save_problems(self, ofilename="save.txt"):
+    def save_problems(self, ofilename=None):
         """Save a string representation of the ProblemSets.
 
         Keyword arguments:
         ofilename -- The name of the output file.
         """
-        if not ofilename:
+        if ofilename is None:
             ofilename = self.filename + '.txt'
+        print('begun')
         with open(ofilename, 'w') as fout:
+            print(ofilename)
             fout.write("chapter\tsection\tproblems\tpage\tright\twrong\n")
             for ps in self.problem_sets:
                 fout.write(str(ps) + '\n')
+        print('complete')
 
     def load_from_pickle(self):
         """
