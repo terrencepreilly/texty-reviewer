@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import re
 
 try:
     from .ProblemSetManager import ProblemSetManager
@@ -84,7 +85,8 @@ def _main():
 
     # ---------------MARK CORRECT------------------------------------ #
     def splitproblem(s):
-        return s.split(':')[0].split('.')
+        r = re.compile('\d+')
+        return r.findall(s)
 
     if args.c:
         for p in args.c:

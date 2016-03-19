@@ -74,6 +74,14 @@ class ProblemSet(object):
             problem
             ))
 
+    def get_history(self):
+        """ Return a list of correct and incorrect completed problems.
+
+        The format for each item in the list is a tuple containing the
+        timestamp, whether it was correct or incorrect, and the problem
+        number. """
+        return self.history
+
     def __lt__(self, ps):
         """Compare two problem sets by chapter, then section.
 
