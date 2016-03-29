@@ -28,6 +28,14 @@ class ProblemSetManager(object):
             self.problem_sets = list()
         self.rand = random.Random()
 
+    def add_problem(self, ps):
+        """ Add the given problem set to the problem_sets. """
+        if type(ps) == ProblemSet:
+            self.problem_sets.append(ps)
+        else:
+            self.problem_sets.append(ProblemSet(
+                ps[0], ps[1], ps[2], ps[3]))
+
     def load_problems(self):
         """Load the ProblemSets defined in the filename."""
         with open(self.filename + '.txt', 'r') as fin:
@@ -153,6 +161,11 @@ class ProblemSetManager(object):
     def get_headers(self):
         """Get the header string."""
         return 'ch.\tsect.\tprob.\tpage\tright\twrong'
+
+    def __str__(self):
+        return (self.get_headers() +
+                '\n' +
+                '\n'.join([str(p) for p in self.problem_sets]))
 
     def get_stats(self):
         """Return a dictionary containing descriptive statistics. """

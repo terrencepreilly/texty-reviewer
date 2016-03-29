@@ -24,6 +24,10 @@ def _main():
     parser = argparse.ArgumentParser(description='A utility for reviewing\
         textbook problems, and tracking progress in textbooks.')
 
+    parser.add_argument('-a', nargs='*',
+        help="""Add a new problem set to this group in the format
+                chapter.section:problems.  For example, 2.1.39 would be
+                section 1 of chapter 2, with 39 problems.""")
     parser.add_argument('-c', nargs='*',
         help="""The problem gotten correct in the format
                 chapter.section:problem.  For example, 6.5:15 would be
@@ -45,6 +49,8 @@ def _main():
                 chapter.section:problem.  For example, 6.5:15 would be
                 problem 15 from section 5 of chapter 6.  When a problem
                 is marked incorrect, automatically saves.""")
+    parser.add_argument('-l', action='store_true',
+        help="""Print all of the current problem sets.""")
     parser.add_argument('-o', action='store_true',
         help="""When generating random problems, only generate odd
                 problems.""")
@@ -82,18 +88,29 @@ def _main():
         psm = None
     timestamp = str(datetime.date.today())
 
-
-    # ---------------MARK CORRECT------------------------------------ #
+    # ---------------ADD PROBLEMSET---------------------------------- #
     def splitproblem(s):
         r = re.compile('\d+')
         return r.findall(s)
 
+    if args.a:
+        for p in args.a:
+            prob = splitproblem(p)
+            if len(prob) == 3:
+                prob.append(0)
+            psm.add_problem(prob)
+
+    # ---------------LIST-------------------------------------------- #
+    if args.l:
+        print(psm)
+
+    # ---------------MARK CORRECT------------------------------------ #
     if args.c:
         for p in args.c:
             try:
                 prob = splitproblem(p)
                 psm.mark_right(int(prob[0]), int(prob[1]), int(prob[2]))
-            except Exception:
+            except IndexError:
                 print("Problem not in problem set!")
 
     # ---------------MARK INCORRECT---------------------------------- #
@@ -101,8 +118,8 @@ def _main():
         for p in args.i:
             try:
                 prob = splitproblem(p)
-                psm.mark_wrong(int(prob[0]), int(prob[1], int(prob[2])))
-            except:
+                psm.mark_wrong(int(prob[0]), int(prob[1]), int(prob[2]))
+            except IndexError:
                 print("Problem not in problem set!")
 
     # ---------------SORT, SAVE, AND CLOSE--------------------------- #
@@ -111,9 +128,9 @@ def _main():
             psm.save_problems(filename + '_' + timestamp + '.txt')
         elif args.hsave:
             psm.save_problems()
-        elif args.H and (args.i or args.c or args.s):
+        elif args.H and any([args.i, args.c, args.s, args.a]):
             psm.save_to_pickle()
-        elif args.i or args.c or args.s:
+        elif any([args.i, args.c, args.s, args.a]):
             psm.save_to_pickle()
 
     # ---------------PRINT RANDOM PROBLEMS--------------------------- #

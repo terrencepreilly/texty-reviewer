@@ -58,6 +58,8 @@ class ProblemSet(object):
 
     def mark_wrong(self, problem):
         """Mark the given problem wrong."""
+        if problem < 0 or problem > self.problems:
+            raise IndexError
         self.wrong += 1
         self.history.append((
             str(datetime.datetime.now()),
@@ -67,6 +69,8 @@ class ProblemSet(object):
 
     def mark_right(self, problem):
         """Mark the given problem right."""
+        if problem < 0 or problem > self.problems:
+            raise IndexError
         self.right += 1
         self.history.append((
             str(datetime.datetime.now()),
