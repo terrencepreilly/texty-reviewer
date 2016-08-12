@@ -1,26 +1,43 @@
+"""
+This module contains the ProblemSet class, a representation of a
+set of problems.
+"""
 import datetime
 import random
 
 
 class ProblemSet(object):
-    """Represents a set of problems from a particular section and
-        chapter of a book.
-        """
+    """Represents a group of problems to be reviewed.
+
+    A group of problems, typically at the end of a section, which should
+    be reviewed.  Includes their history and the number of times the user
+    has gotten them wrong or right.
+
+    Attributes:
+        chapter: (int) The chapter from which this problem came.
+        section: (int) The section from which this problem came.
+        problems: (int) The  number of problems in this section.
+        page: (int) the page number where the problems start.
+        right: (int) The number of times the user has gotten this problem
+            correct.
+        wrong: (int) The number of times the user has gotten this problem
+            wrong.
+        history: (list<tuple>) The history of the answers to this problem.
+    """
 
     def __init__(self, chapter=0, section=0, problems=0,
                  page=0, right=0, wrong=0):
-        """Initialize a ProblemSet, setting all parameters by
-        default to 0.
+        """Initialize a ProblemSet, setting all parameters by default to 0.
 
-        Keyword Arguments:
-        chapter -- The chapter of this set of problems.
-        section -- The section in the chapter.
-        problems -- The number of problems present.
-        page -- The page in the book where the problems are found.
-        right -- The number of times problems in this set have
-                    been answered correctly.
-        wrong -- The number of times problems in this set have
-                    been answered incorretly.
+        Args:
+            chapter: The chapter of this set of problems.
+            section: The section in the chapter.
+            problems: The number of problems present.
+            page: The page in the book where the problems are found.
+            right: The number of times problems in this set have
+                been answered correctly.
+            wrong: The number of times problems in this set have
+                been answered incorretly.
         """
         self.chapter = chapter
         self.section = section
@@ -36,24 +53,24 @@ class ProblemSet(object):
                 problems, page, right, and wrong in a single, tab-
                 separated string.
 
-        Keyword arguments:
-        line -- The line containing the ProblemSet definition
-                    (a tabseparated string defined in key.
-        key -- The key for parsing the line.  Must contain the
-                    words chapter, section, problems, page, right, and
-                    wrong.
+        Args:
+            line: The line containing the ProblemSet definition. Should
+                be a list of tab-separated integers matching the key.
+            key: A tab-separated list of items in a String.  Must contain
+                the words 'chapter', 'section', 'problems', 'page',
+                'right', and 'wrong'.
         """
-        d = dict()
+        dkey = dict()
         sline = [int(a) for a in line.split('\t')]
         skey = [a.strip() for a in key.split('\t')]
         for k in range(len(skey)):
-            d[skey[k]] = sline[k]
-        self.chapter = d["chapter"]
-        self.section = d["section"]
-        self.problems = d["problems"]
-        self.page = d["page"]
-        self.right = d["right"]
-        self.wrong = d["wrong"]
+            dkey[skey[k]] = sline[k]
+        self.chapter = dkey["chapter"]
+        self.section = dkey["section"]
+        self.problems = dkey["problems"]
+        self.page = dkey["page"]
+        self.right = dkey["right"]
+        self.wrong = dkey["wrong"]
         self.history = list()
 
     def mark_wrong(self, problem):
@@ -83,32 +100,33 @@ class ProblemSet(object):
 
         The format for each item in the list is a tuple containing the
         timestamp, whether it was correct or incorrect, and the problem
-        number. """
+        number.
+        """
         return self.history
 
     def __lt__(self, ps):
         """Compare two problem sets by chapter, then section.
 
-        Keyword arguments:
-        ps -- Another ProblemSet.
+        Args:
+            ps: Another ProblemSet.
         """
         if self.chapter == ps.chapter:
             return self.section < ps.section
         return self.chapter < ps.chapter
 
     def __eq__(self, ps):
-        """Compare two problem sets, return True if they are
-           the same. (I.e. Have the same chapter and section.
+        """Return True if the two problem sets are the same.
 
-        Keyword arguments:
-        ps -- Another ProblemSet.
+        Two problem sets are the same if they have the same chapter and
+        section.
+
+        Args:
+            ps: Another ProblemSet.
         """
         return (self.chapter == ps.chapter) and (self.section == ps.section)
 
     def quotient(self):
-        """Returns the number right minus the number wrong for
-                this problem.
-                """
+        """Return the number right minus the number wrong for this problem."""
         return self.right - self.wrong
 
     def __str__(self):

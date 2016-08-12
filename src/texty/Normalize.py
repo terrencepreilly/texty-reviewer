@@ -1,3 +1,7 @@
+"""
+Utility for normalizing a file to using tabs instead of spaces.
+"""
+
 import argparse
 
 def normalize(filename):
@@ -7,8 +11,8 @@ def normalize(filename):
         fin = open(filename, 'r')
         lines = [a.split() for a in fin.readlines()]
         fin.close()
-    except:
-        print('Problem reading file.')
+    except FileNotFoundError:
+        print('Could not find file.')
 
     if len(lines) > 0:
         try:
@@ -16,16 +20,16 @@ def normalize(filename):
             for line in lines:
                 fout.write('\t'.join([a.strip() for a in line]) + '\n')
             fout.close()
-        except:
-            print('Problem writing file.')
+        except FileNotFoundError:
+            print('Could not find file.')
 
-if __name__=='__main__':
-    parser = argparse.ArgumentParser(description='Normalize File Spacing')
+if __name__ == '__main__':
+    PARSER = argparse.ArgumentParser(description='Normalize File Spacing')
 
-    parser.add_argument('-f', nargs='?', help="""The filename for the file
+    PARSER.add_argument('-f', nargs='?', help="""The filename for the file
         to be normalized""")
 
-    args = parser.parse_args()
+    ARGS = PARSER.parse_args()
 
-    if args.f:
-        normalize(args.f)
+    if ARGS.f:
+        normalize(ARGS.f)

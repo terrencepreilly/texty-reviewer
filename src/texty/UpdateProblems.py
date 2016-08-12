@@ -1,176 +1,188 @@
+"""
+Defines the Command Line Interface or texty.
+"""
 import argparse
 import datetime
 import re
+import sys
+
+import json
+from json import JSONDecodeError
+from pkg_resources import resource_string
 
 try:
-    from .ProblemSetManager import ProblemSetManager
+    from .ProblemSetManager import (
+        ProblemSetManager,
+        get_headers,
+        )
 except SystemError:
-    from ProblemSetManager import ProblemSetManager
+    from ProblemSetManager import (
+        ProblemSetManager,
+        get_headers,
+        )
+
+PSM = None
 
 
-def set_default_filename(new_default):
-    with open(".reviewerDefault", 'w') as fin:
-        fin.write(new_default)
+def get_parser():
+    """Return the parser for texty.
+
+    References the file 'parser_arguments.json', which should be in the
+    same directory as this file.
+    """
+    config = resource_string(__name__, 'parser_arguments.json')
+    jparse = None
+    try:
+        jparse = json.loads(config.decode('utf-8'))
+    except JSONDecodeError:
+        print('Unable to parse JSON cofiguration.')
+        sys.exit(2)
+    if jparse is None:
+        return
+    parser = argparse.ArgumentParser(description=jparse['description'])
+    for argument in jparse['arguments']:
+        option_string = argument.pop('option_string')
+        parser.add_argument(option_string, **argument)
+    return parser
+
+ARGS = get_parser().parse_args()
 
 
 def get_default_filename():
+    """Get the default filename for the commands."""
     filename = ''
     with open(".reviewerDefault", 'r') as fin:
         filename = fin.readline().strip()
     return filename
 
+def set_default_filename():
+    """Set the default filename (No file extension)."""
+    if ARGS.set_default:
+        with open(".reviewerDefault", 'w') as fin:
+            fin.write(ARGS.set_default)
 
-def _main():
-    parser = argparse.ArgumentParser(description='A utility for reviewing\
-        textbook problems, and tracking progress in textbooks.')
 
-    parser.add_argument('-a', nargs='*',
-        help="""Add a new problem set to this group in the format
-                chapter.section:problems.  For example, 2.1.39 would be
-                section 1 of chapter 2, with 39 problems.""")
-    parser.add_argument('-c', nargs='*',
-        help="""The problem gotten correct in the format
-                chapter.section:problem.  For example, 6.5:15 would be
-                problem 15 from section 5 of chapter 6. When a problem is
-                marked correct, automatically saves.""")
-    parser.add_argument('-e', action='store_true',
-        help="""When generating random problems, only generate even
-                problems.""")
-    parser.add_argument('-f', nargs='?',
-        help="""The filename for the book being reviewed.""")
-    parser.add_argument('-H', action='store_true',
-        help="""Load from human readable format. (Will not load file
-                history.)""")
-    parser.add_argument('--hsave', action='store_true',
-        help="""Save in a human readable format. (Will not save file
-                history.)""")
-    parser.add_argument('-i', nargs='*',
-        help="""The problem gotten incorrect in the format
-                chapter.section:problem.  For example, 6.5:15 would be
-                problem 15 from section 5 of chapter 6.  When a problem
-                is marked incorrect, automatically saves.""")
-    parser.add_argument('-l', action='store_true',
-        help="""Print all of the current problem sets.""")
-    parser.add_argument('-o', action='store_true',
-        help="""When generating random problems, only generate odd
-                problems.""")
-    parser.add_argument('-p', action='store_true',
-        help="""Print the list of problem sets.""")
-    parser.add_argument('-r', nargs='?',
-        help="""Generate R random problems, weighted.""")
-    parser.add_argument('-s', action='store_true',
-        help="""Force save without marking any correct or incorrect.""")
-    parser.add_argument('--set-default', nargs='?',
-        help="""Set the default file to work on.""")
-    parser.add_argument('--statistics', action='store_true',
-        help="""Display review statistics on the given file.""")
-    parser.add_argument('-t', action='store_true',
-        help="""Adds a timestamp to the filename. (Note: the file name
-                must include some extension, e.g.: .txt)""")
-    args = parser.parse_args()
-
-    if args.set_default:
-        set_default_filename(args.set_default)
-
-    # ---------------GET THE FILENAME-------------------------------- #
-    filename = None
-    if args.f:
-        filename = args.f.split('.')[0]
+def get_filename():
+    """ Get the filename """
+    if ARGS.f:
+        return ARGS.f.split('.')[0]
     else:
-        filename = get_default_filename()
+        return get_default_filename()
 
-    # ---------------OPEN PROBLEMSETMANAGER-------------------------- #
-    if filename is not None and args.H:
+
+def get_problem_set_manager(filename):
+    """Get the ProblemSetManager."""
+    if filename is not None and ARGS.H:
         psm = ProblemSetManager(filename, 'txt')
     elif filename is not None:
         psm = ProblemSetManager(filename)
     else:
         psm = None
-    timestamp = str(datetime.date.today())
+    return psm
 
-    # ---------------ADD PROBLEMSET---------------------------------- #
-    def splitproblem(s):
-        r = re.compile('\d+')
-        return r.findall(s)
 
-    if args.a:
-        for p in args.a:
-            prob = splitproblem(p)
+def _splitproblem(string):
+    reg = re.compile('[0-9]+')
+    return reg.findall(string)
+
+
+def add_problem_set(psm):
+    """Add a ProblemSet"""
+    if ARGS.a:
+        for problem_set in ARGS.a:
+            prob = _splitproblem(problem_set)
             if len(prob) == 3:
                 prob.append(0)
             psm.add_problem(prob)
 
-    # ---------------LIST-------------------------------------------- #
-    if args.l:
+
+def print_problem_sets(psm):
+    """Print the ProblemSets"""
+    if ARGS.l:
         print(psm)
 
-    # ---------------MARK CORRECT------------------------------------ #
-    if args.c:
-        for p in args.c:
+def mark_problem_correct(psm):
+    """Mark the given problems correct."""
+    if ARGS.c:
+        for correct in ARGS.c:
             try:
-                prob = splitproblem(p)
+                prob = _splitproblem(correct)
                 psm.mark_right(int(prob[0]), int(prob[1]), int(prob[2]))
             except IndexError:
                 print("Problem not in problem set!")
 
-    # ---------------MARK INCORRECT---------------------------------- #
-    if args.i:
-        for p in args.i:
+
+def mark_problem_incorrect(psm):
+    """Mark the given problems incorrect."""
+    if ARGS.i:
+        for incorrect in ARGS.i:
             try:
-                prob = splitproblem(p)
+                prob = _splitproblem(incorrect)
                 psm.mark_wrong(int(prob[0]), int(prob[1]), int(prob[2]))
             except IndexError:
                 print("Problem not in problem set!")
 
-    # ---------------SORT, SAVE, AND CLOSE--------------------------- #
+
+def sort_save_and_close(psm, filename, timestamp):
+    """Sort, save, and close the ProblemSetManager."""
     if psm is not None:
-        if args.t:
+        if ARGS.t:
             psm.save_problems(filename + '_' + timestamp + '.txt')
-        elif args.hsave:
+        elif ARGS.hsave:
             psm.save_problems()
-        elif args.H and any([args.i, args.c, args.s, args.a]):
+        elif ARGS.H and any([ARGS.i, ARGS.c, ARGS.s, ARGS.a]):
             psm.save_to_pickle()
-        elif any([args.i, args.c, args.s, args.a]):
+        elif any([ARGS.i, ARGS.c, ARGS.s, ARGS.a]):
             psm.save_to_pickle()
 
-    # ---------------PRINT RANDOM PROBLEMS--------------------------- #
-    class Problem_Filters(object):
 
-        def odds(x): return (x & 1) == 1
-
-        def evens(x): return (x & 1) == 0
-
-        def all(x): return True
-
-
-    if args.r and psm is not None:
-        custom_filter = Problem_Filters.all
-        if (args.o and not args.e):
-            custom_filter = Problem_Filters.odds
-        elif (args.e and not args.o):
-            custom_filter = Problem_Filters.evens
-        print(psm.get_headers())
-        for i in range(int(args.r)):
+def print_random_problems(psm):
+    """Print the random problems requested from the user."""
+    if ARGS.r and psm is not None:
+        custom_filter = lambda x: True
+        if ARGS.o and not ARGS.e:
+            custom_filter = lambda x: (x & 1) == 1
+        elif ARGS.e and not ARGS.o:
+            custom_filter = lambda x: (x & 1) == 0
+        print(get_headers())
+        for _ in range(int(ARGS.r)):
             rand_prob_set = psm.random_problem_set_weighted()
             print(rand_prob_set.str_rand_problem(custom_filter))
 
-
-    # ---------------PRINT ALL PROBLEM SETS-------------------------- #
-    if args.p and psm is not None:
+def print_all_problem_sets(psm):
+    """Print all of the Problem Sets."""
+    if ARGS.p and psm is not None:
         print(psm.get_headers())
-        for ps in psm.problem_sets:
-            print(ps)
+        for problem_set in psm.problem_sets:
+            print(problem_set)
 
-    # ---------------DISPLAY DESCRIPTIVE STATISTICS------------------ #
-    if args.statistics and psm is not None:
+
+def print_descriptive_statistics(psm):
+    """Print descriptive statistics for the ProblemSets."""
+    if ARGS.statistics and psm is not None:
         stats = psm.get_stats()
         if stats['total'] != 0:
-            p = float(stats['right']) / float(stats['total']) * 100
+            correct = float(stats['right']) / float(stats['total']) * 100
         else:
-            p = '0 '
+            correct = '0 '
         print('#--------DESCRIPTIVE STATISTICS FOR ' + psm.filename +
               '-----------#')
         print('\tTotal Reviewed:\t\t%d' % stats['total'])
-        print('\tPercent Right:\t\t' + str(p)[:4] + '%')
+        print('\tPercent Right:\t\t' + str(correct)[:4] + '%')
         print('\tTotal Correct:\t\t%d' % stats['right'])
         print('\tTotal Incorrect:\t%d' % stats['wrong'])
+
+def _main():
+    set_default_filename()
+    filename = get_filename()
+    psm = get_problem_set_manager(filename)
+    timestamp = str(datetime.date.today())
+
+    add_problem_set(psm)
+    print_problem_sets(psm)
+    mark_problem_correct(psm)
+    mark_problem_incorrect(psm)
+    sort_save_and_close(psm, filename, timestamp)
+    print_random_problems(psm)
+    print_all_problem_sets(psm)
+    print_descriptive_statistics(psm)

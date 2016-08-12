@@ -1,0 +1,81 @@
+{
+    "description": "A utility for reviewing textbook problems, and tracking progress in textbooks.",
+    "arguments": [
+        {
+            "option_string": "-a",
+            "nargs": "*",
+            "help": "Add a new problem set to this group in the format chapter.section:problems.  For example, 2.1.39 would be section 1 of chapter 2, with 39 problems."
+        },
+        {
+            "option_string": "-c",
+            "nargs": "*",
+            "help": "The problem gotten correct in the format 'chapter.section:problem'.  For example, '6.5:15' would be problem 15 from section 5 of chapter 6.  When a problem is marked correct, automatically saves."
+        },
+        {
+            "option_string": "-e",
+            "action": "store_true",
+            "help": "When generating random problems, only generate even problems."
+        },
+        {
+            "option_string": "-f",
+            "nargs": "?",
+            "help": "The filename for the book being reviewed."
+        },
+        {
+            "option_string": "-H",
+            "action": "store_true",
+            "help": "Load from human readable format. (Will not load file history"
+        },
+        {
+            "option_string": "--hsave",
+            "action": "store_true",
+            "help": "Save in a human readable format. (Will not save file history."
+        },
+        {
+            "option_string": "-i",
+            "nargs": "*",
+            "help": "The problem gotten incorrect in the format chapter.section:problem.  For example, 6.5:15 would be problem 15 from section 5 of chapter 6.  When a problem is marked incorrect, automatically saves."
+        },
+        {
+            "option_string": "-l",
+            "action": "store_true",
+            "help": "Print all of the current problem sets."
+        },
+        {
+            "option_string": "-o",
+            "action": "store_true",
+            "help": "When generating random problems, only generate odd problems."
+        },
+        {
+            "option_string": "-p",
+            "action": "store_true",
+            "help": "Print the list of problem sets."
+        },
+        {
+            "option_string": "-r",
+            "nargs": "?",
+            "help": "Generate R random problems, weighted."
+        },
+        {
+            "option_string": "-s",
+            "action": "store_true",
+            "help": "Force save without marking any correct or incorrect."
+        },
+        {
+            "option_string": "--set-default",
+            "nargs": "?",
+            "help": "Set the default file to work on."
+        },
+        {
+            "option_string": "--statistics",
+            "action": "store_true",
+            "help": "Display review statistics on the given file."
+        },
+        {
+            "option_string": "-t",
+            "action": "store_true",
+            "help": "Adds a timestamp to the filename. (Note: the file name must include some extension, e.g.: .txt)"
+        }
+    ]
+}
+
