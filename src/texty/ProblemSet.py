@@ -6,6 +6,14 @@ import datetime
 import random
 
 
+def _coerce(x, coercion=int):
+    try:
+        return coercion(x)
+    except:
+        return x
+
+
+
 class ProblemSet(object):
     """Represents a group of problems to be reviewed.
 
@@ -46,6 +54,17 @@ class ProblemSet(object):
         self.right = right
         self.wrong = wrong
         self.history = list()
+
+    def normalize(self):
+        """Normalize the members to give them all the same types.
+
+        Returns:
+            The normalized ProblemSet.
+        """
+        self.chapter = _coerce(self.chapter)
+        self.section = _coerce(self.section)
+        self.problems = _coerce(self.problems)
+        return self
 
     def init_line(self, line,
                   key="chapter\tsection\tproblems\tpage\tright\twrong"):

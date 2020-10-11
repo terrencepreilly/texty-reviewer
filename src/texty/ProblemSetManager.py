@@ -6,10 +6,7 @@ import math
 import random
 import pickle
 
-try:
-    from .ProblemSet import ProblemSet
-except SystemError:
-    from ProblemSet import ProblemSet
+from .ProblemSet import ProblemSet
 
 def get_headers():
     """Get the key describing the problem_sets."""
@@ -72,7 +69,7 @@ class ProblemSetManager(object):
             for line in lines:
                 problem_set = ProblemSet()
                 problem_set.init_line(line, key)
-                yield problem_set
+                yield problem_set.normalize()
 
     def save_problems(self, ofilename=None):
         """Save a string representation of the ProblemSets.
@@ -93,7 +90,7 @@ class ProblemSetManager(object):
         ret = None
         with open(self.filename + '.txy', 'rb') as fin:
             ret = pickle.load(fin)
-        return ret
+        return [x.normalize() for x in ret]
 
     def save_to_pickle(self):
         """Save problem_sets to a pickle dump."""
@@ -172,7 +169,7 @@ class ProblemSetManager(object):
 
         Return a random ProblemSet, weighted by its position in problem_sets.
         """
-        minimum = 0
+        minimum = 1
         maximum = len(self.problem_sets) - 1
         mean = .8 * maximum
         sigma = .3 * maximum

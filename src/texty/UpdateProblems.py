@@ -5,23 +5,16 @@ import argparse
 import datetime
 import re
 import sys
+import os
 
 import json
 from json import JSONDecodeError
 from pkg_resources import resource_string
 
-try:
-    from .ProblemSetManager import (
-        ProblemSetManager,
-        get_headers,
-        )
-except SystemError:
-    from ProblemSetManager import (
-        ProblemSetManager,
-        get_headers,
-        )
-
-PSM = None
+from .ProblemSetManager import (
+    ProblemSetManager,
+    get_headers,
+)
 
 
 def get_parser():
@@ -58,6 +51,13 @@ def get_default_filename():
 def set_default_filename():
     """Set the default filename (No file extension)."""
     if ARGS.set_default:
+        path_exists = os.path.exists(ARGS.set_default)
+        if not path_exists:
+            empty_problemset = ProblemSetManager(ARGS.set_default, None) 
+            if ARGS.set_default.endswith('.txt'):
+                empty_problemset.save_problems()
+            else:
+                empty_problemset.save_to_pickle()
         with open(".reviewerDefault", 'w') as fin:
             fin.write(ARGS.set_default)
 
