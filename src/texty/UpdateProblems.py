@@ -96,6 +96,29 @@ def add_problem_set(psm):
             psm.add_problem(prob)
 
 
+def edit_problem_set(psm):
+    if ARGS.edit:
+        old_problem_set = _splitproblem(
+            ARGS.edit[0]
+        )
+        if len(old_problem_set) != 3:
+            print(
+                "Old problem incorrectly formatted.",
+                file=sys.stderr
+            )
+        new_problem_set = _splitproblem(
+            ARGS.edit[1]
+        )
+        if len(new_problem_set) != 3:
+            print(
+                "New problem incorrectly formatted.",
+                file=sys.stderr
+            )
+        psm.replace_problem(
+            old_problem_set,
+            new_problem_set,
+        )
+
 def print_problem_sets(psm):
     """Print the ProblemSets"""
     if ARGS.l:
@@ -132,7 +155,13 @@ def sort_save_and_close(psm, filename, timestamp):
             psm.save_problems()
         elif ARGS.H and any([ARGS.i, ARGS.c, ARGS.s, ARGS.a]):
             psm.save_to_pickle()
-        elif any([ARGS.i, ARGS.c, ARGS.s, ARGS.a]):
+        elif any([
+            ARGS.i,
+            ARGS.c,
+            ARGS.s,
+            ARGS.a,
+            ARGS.edit,
+        ]):
             psm.save_to_pickle()
 
 
@@ -179,6 +208,7 @@ def _main():
     timestamp = str(datetime.date.today())
 
     add_problem_set(psm)
+    edit_problem_set(psm)
     print_problem_sets(psm)
     mark_problem_correct(psm)
     mark_problem_incorrect(psm)

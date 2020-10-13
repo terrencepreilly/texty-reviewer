@@ -5,6 +5,7 @@ Defines the ProblemSetManager.
 import math
 import random
 import pickle
+import sys
 
 from .ProblemSet import ProblemSet
 
@@ -54,6 +55,32 @@ class ProblemSetManager(object):
             self.problem_sets.append(problem_set)
         else:
             self.problem_sets.append(ProblemSet(*problem_set))
+
+    def replace_problem(self,
+                        old_problem_set,
+                        new_prolem_set):
+        old = old_problem_set
+        if old is not ProblemSet:
+            old = ProblemSet(*map(int, old))
+        new = new_prolem_set
+        if new is not ProblemSet:
+            new = ProblemSet(*map(int, new))
+            
+        index  = -1
+        for i, ps in enumerate(self.problem_sets):
+            if ps == old:
+                index = i
+                break
+        if index == -1:
+            print(
+                'Original problem {} not found.'.format(
+                    old
+                ),
+                file=sys.stderr,
+            )
+            return
+            
+        self.problem_sets[index] = new
 
     def load_problems(self):
         """Load the ProblemSets defined in the filename.

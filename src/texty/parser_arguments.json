@@ -17,6 +17,13 @@
             "help": "When generating random problems, only generate even problems."
         },
         {
+            "option_string": "--edit",
+            "nargs": 2,
+            "metavar": ["OLD", "NEW"],
+            "required": false,
+            "help": "Edit a set of problems.  Takes the old problem set and the new problem set."
+        },
+        {
             "option_string": "-f",
             "nargs": "?",
             "help": "The filename for the book being reviewed."
