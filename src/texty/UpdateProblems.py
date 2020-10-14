@@ -96,6 +96,12 @@ def add_problem_set(psm):
             psm.add_problem(prob)
 
 
+def delete_problem_set(psm):
+    if ARGS.d:
+        for problem_set in ARGS.d:
+            prob = _splitproblem(problem_set)
+            psm.remove_problem(prob)
+
 def edit_problem_set(psm):
     if ARGS.edit:
         old_problem_set = _splitproblem(
@@ -160,6 +166,7 @@ def sort_save_and_close(psm, filename, timestamp):
             ARGS.c,
             ARGS.s,
             ARGS.a,
+            ARGS.d,
             ARGS.edit,
         ]):
             psm.save_to_pickle()
@@ -208,6 +215,7 @@ def _main():
     timestamp = str(datetime.date.today())
 
     add_problem_set(psm)
+    delete_problem_set(psm)
     edit_problem_set(psm)
     print_problem_sets(psm)
     mark_problem_correct(psm)

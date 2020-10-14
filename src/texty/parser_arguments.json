@@ -7,6 +7,11 @@
             "help": "Add a new problem set to this group in the format chapter.section:problems.  For example, 2.1.39 would be section 1 of chapter 2, with 39 problems."
         },
         {
+            "option_string": "-d",
+            "nargs": "*",
+            "help": "Delete the given problem sets."
+        },
+        {
             "option_string": "-c",
             "nargs": "*",
             "help": "The problem gotten correct in the format 'chapter.section:problem'.  For example, '6.5:15' would be problem 15 from section 5 of chapter 6.  When a problem is marked correct, automatically saves."

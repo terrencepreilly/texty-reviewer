@@ -56,6 +56,25 @@ class ProblemSetManager(object):
         else:
             self.problem_sets.append(ProblemSet(*problem_set))
 
+    def remove_problem(self, problem_set):
+        problem = problem_set
+        if problem is not ProblemSet:
+            problem = ProblemSet(*map(int, problem))
+        index = -1
+        for i, ps in enumerate(self.problem_sets):
+            if ps == problem:
+                index = i
+                break
+        if index == -1:
+            print(
+                "Unable to find problem {}".format(
+                    problem
+                ),
+                file=sys.stderr,
+            )
+        else:
+            self.problem_sets.pop(index)
+
     def replace_problem(self,
                         old_problem_set,
                         new_prolem_set):
